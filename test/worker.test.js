@@ -11,6 +11,16 @@ test('GET / returns Thai worksheet HTML', async () => {
   assert.match(html, /ชื่อ–นามสกุล/);
 });
 
+test('GET / includes mobile-first interaction styles', async () => {
+  const response = await worker.fetch(new Request('https://example.com/'));
+  const html = await response.text();
+  assert.match(html, /viewport-fit=cover/);
+  assert.match(html, /class="mobile-progress"/);
+  assert.match(html, /position:sticky/);
+  assert.match(html, /min-height:52px/);
+  assert.match(html, /padding-bottom:calc\(92px \+ env\(safe-area-inset-bottom\)\)/);
+});
+
 test('POST /api/check grades all-correct answers', async () => {
   const answers = {
     '1':'trade','2':'trade','3':'nontrade','4':'nontrade','5':'trade',
