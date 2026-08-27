@@ -7,13 +7,15 @@ const ALL_CORRECT = {
   '6':'nontrade','7':'trade','8':'nontrade','9':'trade','10':'nontrade'
 };
 
-test('GET / returns mobile-first Thai worksheet that submits to /api/submit', async () => {
+test('GET / returns mobile-first Thai worksheet with roster selector', async () => {
   const response = await worker.fetch(new Request('https://example.com/'), {});
   const html = await response.text();
   assert.equal(response.status, 200);
   assert.match(html, /รายการค้าและรายการที่ไม่ใช่รายการค้า/);
   assert.match(html, /viewport-fit=cover/);
   assert.match(html, /class="mobile-progress"/);
+  assert.match(html, /id="studentSelect"/);
+  assert.match(html, /\/api\/students\?class=/);
   assert.match(html, /\/api\/submit/);
   assert.match(html, /บันทึกผลลง Google Sheet/);
 });
