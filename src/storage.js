@@ -37,3 +37,30 @@ export async function saveSubmission(env, payload, fetchImpl = fetch) {
   }
   return data;
 }
+
+export async function fetchStudents(env, studentClass, fetchImpl = fetch) {
+  const webhookUrl = env?.SHEET_WEBHOOK_URL;
+  if (!webhookUrl) throw new Error('ยังไม่ได้ตั้งค่า SHEET_WEBHOOK_URL');
+  const cls = String(studentClass || '').trim();
+  if (!cls) throw new Error('กรุณาระบุชั้นเรียน');
+
+  const url = new URL(webhookUrl);
+  url.searchParams.set('action', 'students');
+  url.searchParams.set('class', cls);
+  if (env?.SHEET_WEBHOOK_TOKEN) url.searchParams.set('token', env.SHEET_WEBHOOK_TOKEN);
+
+  const response = await fetchImpl(url.toString(), {
+    method: 'GET',
+    redirect: 'follow',
+    headers: { 'accept': 'application/json' }
+  });
+  const text = await response.text();
+  let data;
+  try { data = JSON.parse(text); }
+  catch { data = { ok: false, error: 'ข้อมูลรายชื่อนักเรียนไม่ถูกต้อง' }; }
+
+  if (!response.ok || data.ok === false) {
+    throw new Error(data.error || 'โหลดรายชื่อนักเรียนไม่สำเร็จ');
+  }
+  return data;
+}
