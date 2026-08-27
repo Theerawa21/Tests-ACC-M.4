@@ -10,6 +10,12 @@ test('Apps Script grades 20 answers and appends all answers', () => {
   assert.match(code, /sheet\.appendRow\(row\)/);
 });
 
+test('Apps Script requires and appends 20 written reasons', () => {
+  assert.match(code, /payload\.reasons/);
+  assert.match(code, /กรุณาพิมพ์เหตุผลให้ครบทุกข้อ/);
+  assert.match(code, /row\.push\(String\(payload\.reasons\[String\(i\)\]\)/);
+});
+
 test('Apps Script can find one student by student ID', () => {
   assert.match(code, /function getStudentById/);
   assert.match(code, /params\.action\s*!==\s*'student'/);
