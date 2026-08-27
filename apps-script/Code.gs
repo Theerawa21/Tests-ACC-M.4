@@ -66,6 +66,11 @@ function doPost(e) {
       }
     }
 
+    const total = Number(payload.total);
+    if (!Number.isInteger(total) || total < 1 || total > 50) {
+      return jsonOutput({ ok: false, error: 'Invalid total' });
+    }
+
     const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(RESULT_SHEET_NAME);
     if (!sheet) return jsonOutput({ ok: false, error: 'Result sheet not found' });
 
@@ -76,11 +81,13 @@ function doPost(e) {
       payload.studentClass,
       Number(payload.studentNo),
       Number(payload.score),
-      Number(payload.total),
+      total,
       Number(payload.percentage),
       payload.passed ? 'ผ่าน' : 'ควรทบทวน'
     ];
-    for (let i = 1; i <= 10; i++) row.push(answerLabel(payload.answers[String(i)]));
+    for (let i = 1; i <= Number(payload.total); i++) {
+      row.push(answerLabel(payload.answers[String(i)]));
+    }
 
     sheet.appendRow(row);
     return jsonOutput({ ok: true, row: sheet.getLastRow() });
