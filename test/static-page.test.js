@@ -20,6 +20,16 @@ test('GitHub Pages entry uses student ID lookup instead of room/name selectors',
   assert.doesNotMatch(html, /\/api\/submit/);
 });
 
+test('every question includes a required written reason', async () => {
+  const html = await read('index.html');
+  assert.match(html, /class="reason-input"/);
+  assert.match(html, /name="reason\$\{q\.id\}"/);
+  assert.match(html, /เหตุผลของฉัน/);
+  assert.match(html, /function reasonsObject/);
+  assert.match(html, /กรุณาพิมพ์เหตุผลให้ครบทั้ง 20 ข้อ/);
+  assert.match(html, /reasons/);
+});
+
 test('page keeps colorful mobile-first visual treatment', async () => {
   const html = await read('index.html');
   assert.match(html, /theme-color" content="#6d28d9"/);
