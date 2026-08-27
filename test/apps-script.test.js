@@ -10,7 +10,15 @@ test('Apps Script grades 20 answers and appends all answers', () => {
   assert.match(code, /sheet\.appendRow\(row\)/);
 });
 
-test('Apps Script validates student against roster before saving', () => {
+test('Apps Script can find one student by student ID', () => {
+  assert.match(code, /function getStudentById/);
+  assert.match(code, /params\.action\s*!==\s*'student'/);
+  assert.match(code, /params\.id/);
+  assert.match(code, /studentId/);
+});
+
+test('Apps Script validates submitted student ID before saving', () => {
   assert.match(code, /verifyStudent\(payload\)/);
-  assert.match(code, /getStudents/);
+  assert.match(code, /payload\.studentId/);
+  assert.match(code, /getStudentById/);
 });

@@ -18,34 +18,38 @@ function safeCallback(value) {
   return /^[A-Za-z_$][0-9A-Za-z_$]*$/.test(callback) ? callback : '';
 }
 
-function getStudents(studentClass) {
+function getStudentById(studentId) {
+  const id = String(studentId || '').trim();
+  if (!id) return null;
   const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(STUDENT_SHEET_NAME);
   if (!sheet) throw new Error('Student sheet not found');
   const lastRow = sheet.getLastRow();
-  if (lastRow < 2) return [];
-  return sheet.getRange(2, 1, lastRow - 1, 5).getValues()
-    .filter(row => String(row[0]).trim() === studentClass && String(row[3]).trim())
-    .map(row => ({
-      studentClass: String(row[0]).trim(),
-      studentNo: Number(row[1]),
-      studentId: String(row[2]).trim(),
-      name: String(row[3]).trim(),
-      status: String(row[4]).trim()
-    }))
-    .sort((a, b) => a.studentNo - b.studentNo);
+  if (lastRow < 2) return null;
+  const rows = sheet.getRange(2, 1, lastRow - 1, 5).getValues();
+  const row = rows.find(item => String(item[2]).trim() === id && String(item[3]).trim());
+  if (!row) return null;
+  return {
+    studentClass: String(row[0]).trim(),
+    studentNo: Number(row[1]),
+    studentId: String(row[2]).trim(),
+    name: String(row[3]).trim(),
+    status: String(row[4]).trim()
+  };
 }
 
 function doGet(e) {
   const params = (e && e.parameter) || {};
   const callback = safeCallback(params.callback);
   try {
-    if (params.action !== 'students') {
+    if (params.action !== 'student') {
       const data = { ok:true, service:'Tests-ACC-M4 Google Sheet API' };
       return callback ? jsOutput(callback + '(' + JSON.stringify(data) + ');') : jsOutput('console.log(' + JSON.stringify(data) + ');');
     }
-    const studentClass = String(params.class || '').trim();
-    if (!studentClass) throw new Error('Missing class');
-    const data = { ok:true, students:getStudents(studentClass) };
+    const studentId = String(params.id || '').trim();
+    if (!studentId) throw new Error('กรุณากรอกรหัสประจำตัวนักเรียน');
+    const student = getStudentById(studentId);
+    if (!student) throw new Error('ไม่พบรหัสประจำตัวนักเรียน');
+    const data = { ok:true, student:student };
     return callback ? jsOutput(callback + '(' + JSON.stringify(data) + ');') : jsOutput('console.log(' + JSON.stringify(data) + ');');
   } catch (error) {
     const data = { ok:false, error:String(error && error.message ? error.message : error) };
@@ -65,11 +69,12 @@ function gradeAnswers(answers) {
 }
 
 function verifyStudent(payload) {
-  const students = getStudents(String(payload.studentClass || '').trim());
-  return students.some(s =>
-    String(s.studentNo) === String(payload.studentNo) &&
-    s.name === String(payload.name || '').trim()
-  );
+  const student = getStudentById(String(payload.studentId || '').trim());
+  if (!student) return false;
+  return student.studentId === String(payload.studentId || '').trim() &&
+    String(student.studentNo) === String(payload.studentNo) &&
+    student.studentClass === String(payload.studentClass || '').trim() &&
+    student.name === String(payload.name || '').trim();
 }
 
 function iframeResponse(data) {
@@ -85,9 +90,9 @@ function doPost(e) {
     lock.waitLock(10000);
     const raw = e && e.parameter ? e.parameter.payload : '';
     const payload = JSON.parse(raw || '{}');
-    const required = ['name','studentClass','studentNo','answers'];
+    const required = ['name','studentClass','studentNo','studentId','answers'];
     required.forEach(key => { if (payload[key] === undefined || payload[key] === null || payload[key] === '') throw new Error('Missing field: ' + key); });
-    if (!verifyStudent(payload)) throw new Error('ไม่พบข้อมูลนักเรียนในฐานข้อมูล');
+    if (!verifyStudent(payload)) throw new Error('ข้อมูลนักเรียนไม่ตรงกับฐานข้อมูล');
 
     const grading = gradeAnswers(payload.answers);
     const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(RESULT_SHEET_NAME);

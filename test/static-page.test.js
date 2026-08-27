@@ -4,14 +4,28 @@ import { readFile } from 'node:fs/promises';
 
 const read = (path) => readFile(new URL('../' + path, import.meta.url), 'utf8');
 
-test('GitHub Pages entry exists and uses Google Apps Script directly', async () => {
+test('GitHub Pages entry uses student ID lookup instead of room/name selectors', async () => {
   const html = await read('index.html');
-  assert.match(html, /GitHub Pages \+ Google Sheet/);
   assert.match(html, /APP_SCRIPT_URL/);
-  assert.match(html, /studentSelect/);
+  assert.match(html, /id="studentIdInput"/);
+  assert.match(html, /id="searchStudentBtn"/);
+  assert.match(html, /action=student/);
+  assert.match(html, /id="studentName"/);
+  assert.match(html, /id="studentClass"/);
+  assert.match(html, /id="studentNo"/);
+  assert.doesNotMatch(html, /id="studentSelect"/);
+  assert.doesNotMatch(html, /<select id="studentClass"/);
   assert.match(html, /target="sheetFrame"/);
   assert.doesNotMatch(html, /\/api\/students/);
   assert.doesNotMatch(html, /\/api\/submit/);
+});
+
+test('page keeps colorful mobile-first visual treatment', async () => {
+  const html = await read('index.html');
+  assert.match(html, /theme-color" content="#6d28d9"/);
+  assert.match(html, /linear-gradient/);
+  assert.match(html, /class="hero-badges"/);
+  assert.match(html, /viewport-fit=cover/);
 });
 
 test('Cloudflare config is removed from package scripts', async () => {
@@ -21,7 +35,7 @@ test('Cloudflare config is removed from package scripts', async () => {
   assert.equal(pkg.devDependencies?.wrangler, undefined);
 });
 
-test('Apps Script supports JSONP roster and iframe form submission', async () => {
+test('Apps Script supports JSONP lookup and iframe form submission', async () => {
   const code = await read('apps-script/Code.gs');
   assert.match(code, /MimeType\.JAVASCRIPT/);
   assert.match(code, /e\.parameter\.payload/);
