@@ -68,6 +68,14 @@ function gradeAnswers(answers) {
   return { score, total, percentage, passed: percentage >= 70 };
 }
 
+function validateReasons(reasons) {
+  Object.keys(ANSWER_KEY).forEach(key => {
+    if (!reasons || !String(reasons[key] || '').trim()) {
+      throw new Error('กรุณาพิมพ์เหตุผลให้ครบทุกข้อ');
+    }
+  });
+}
+
 function verifyStudent(payload) {
   const student = getStudentById(String(payload.studentId || '').trim());
   if (!student) return false;
@@ -90,11 +98,12 @@ function doPost(e) {
     lock.waitLock(10000);
     const raw = e && e.parameter ? e.parameter.payload : '';
     const payload = JSON.parse(raw || '{}');
-    const required = ['name','studentClass','studentNo','studentId','answers'];
+    const required = ['name','studentClass','studentNo','studentId','answers','reasons'];
     required.forEach(key => { if (payload[key] === undefined || payload[key] === null || payload[key] === '') throw new Error('Missing field: ' + key); });
     if (!verifyStudent(payload)) throw new Error('ข้อมูลนักเรียนไม่ตรงกับฐานข้อมูล');
 
     const grading = gradeAnswers(payload.answers);
+    validateReasons(payload.reasons);
     const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(RESULT_SHEET_NAME);
     if (!sheet) throw new Error('Result sheet not found');
 
@@ -104,6 +113,7 @@ function doPost(e) {
       grading.score, grading.total, grading.percentage, grading.passed ? 'ผ่าน' : 'ควรทบทวน'
     ];
     for (let i = 1; i <= grading.total; i++) row.push(answerLabel(payload.answers[String(i)]));
+    for (let i = 1; i <= grading.total; i++) row.push(String(payload.reasons[String(i)]).trim());
     sheet.appendRow(row);
 
     return iframeResponse({ ok:true, row:sheet.getLastRow(), score:grading.score, total:grading.total, percentage:grading.percentage, passed:grading.passed });
