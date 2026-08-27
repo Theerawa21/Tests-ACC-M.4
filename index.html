@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#111111">
+  <title>ใบงานออนไลน์ | รายการค้าและรายการที่ไม่ใช่รายการค้า</title>
+  <style>
+    *{box-sizing:border-box}html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}body{margin:0;background:#f1f1f1;color:#111;font-family:"Sarabun","Noto Sans Thai",Tahoma,sans-serif;line-height:1.5}.sheet{width:min(960px,100%);margin:auto;min-height:100dvh;background:#fff}.top{padding:12px 16px;border-bottom:1px solid #111}.hero{padding:24px 16px;text-align:center;border-bottom:2px solid #111}.hero h1{font-size:clamp(1.6rem,7vw,2.5rem);line-height:1.2;margin:0}.hero p{margin:8px 0 0;color:#555}.stack{padding:16px}.status{padding:12px;border:1.5px solid #111;border-radius:12px;background:#fafafa;margin-bottom:16px}.status.warn{background:#eee}.grid{display:grid;gap:12px}.field label{display:block;font-weight:800;margin-bottom:5px}.field select,.field input{width:100%;min-height:52px;border:1.5px solid #111;border-radius:10px;padding:12px;background:#fff;font-size:16px}.section-title{display:flex;align-items:center;gap:8px;margin:24px 0 12px}.section-title span{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#111;color:#fff;font-weight:900}.progress{position:sticky;top:0;z-index:20;display:flex;gap:10px;align-items:center;padding:10px 14px;background:rgba(255,255,255,.96);border-bottom:1px solid #111}.track{height:8px;flex:1;border:1px solid #111;border-radius:999px;overflow:hidden}.fill{height:100%;width:0;background:#111}.questions{display:grid;gap:12px}.card{border:1.5px solid #111;border-radius:14px;padding:14px}.qhead{display:grid;grid-template-columns:38px 1fr;gap:10px;align-items:start}.num{width:38px;height:38px;border-radius:50%;background:#111;color:#fff;display:grid;place-items:center;font-weight:900}.qhead h3{margin:2px 0 12px;font-size:1rem}.choices{display:grid;gap:8px}.choice{min-height:52px;border:1.5px solid #999;border-radius:11px;padding:11px 13px;display:flex;align-items:center;gap:10px;font-weight:700;cursor:pointer}.choice input{width:20px;height:20px}.feedback{margin-top:10px;padding-top:9px;border-top:1px dashed #999;font-size:.9rem}.actions{position:sticky;bottom:0;z-index:30;display:grid;gap:8px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid #111}.btn{min-height:52px;border:2px solid #111;border-radius:11px;background:#fff;font-weight:900;font-size:1rem}.btn.primary{background:#111;color:#fff}.btn:disabled{opacity:.5}.result{margin:18px 0;border:2px solid #111;border-radius:14px;overflow:hidden}.result-head{background:#111;color:#fff;text-align:center;padding:18px}.score{font-size:2rem;font-weight:900}.result-body{padding:14px;text-align:center}.saved{display:inline-block;margin-top:8px;border:1px solid currentColor;border-radius:999px;padding:5px 10px;font-size:.85rem;font-weight:800}@media(min-width:760px){.sheet{margin:24px auto;border:2px solid #111}.stack{padding:24px}.grid{grid-template-columns:1fr 2fr 1fr 1fr}.choices{grid-template-columns:1fr 1fr}.actions{position:static;grid-template-columns:1fr 1fr;margin-top:20px;border:0;padding:0}.btn.primary{grid-column:1/-1}}
+  </style>
+</head>
+<body>
+<main class="sheet">
+  <div class="top"><strong>โรงเรียนเซนต์เทเรซา</strong> · วิชาการบัญชีเบื้องต้น ม.4</div>
+  <header class="hero"><h1>รายการค้าและรายการที่ไม่ใช่รายการค้า</h1><p>GitHub Pages + Google Sheet</p></header>
+  <div class="progress"><div class="track"><div class="fill" id="progressFill"></div></div><strong id="progressText">ตอบแล้ว 0/20</strong></div>
+  <div class="stack">
+    <div id="configStatus" class="status warn">ยังไม่ได้เชื่อม Google Apps Script Web App</div>
+
+    <h2 class="section-title"><span>1</span> ข้อมูลนักเรียน</h2>
+    <div class="grid">
+      <div class="field"><label for="studentClass">ชั้น</label><select id="studentClass"><option value="">เลือกห้อง</option><option>ม.4/1</option><option>ม.4/2</option><option>ม.4/3</option><option>ม.4/4</option><option>ม.4/5</option></select></div>
+      <div class="field"><label for="studentSelect">ชื่อ–นามสกุล</label><select id="studentSelect" disabled><option value="">เลือกห้องก่อน</option></select></div>
+      <div class="field"><label for="studentNo">เลขที่</label><input id="studentNo" readonly></div>
+      <div class="field"><label for="studentId">รหัสนักเรียน</label><input id="studentId" readonly></div>
+    </div>
+    <div id="rosterStatus" class="status">เลือกระดับชั้นเพื่อโหลดรายชื่อจาก Google Sheet</div>
+
+    <h2 class="section-title"><span>2</span> แบบฝึกหัด 20 ข้อ</h2>
+    <section class="questions" id="questions"></section>
+
+    <div class="actions">
+      <button class="btn primary" id="submitBtn" type="button">ส่งคำตอบและบันทึกลง Google Sheet</button>
+      <button class="btn" id="resetBtn" type="button">เริ่มทำใหม่</button>
+      <button class="btn" type="button" onclick="window.print()">พิมพ์</button>
+    </div>
+
+    <section id="result" class="result" hidden>
+      <div class="result-head"><div>คะแนนของคุณ</div><div id="score" class="score">0/20</div><div id="savedBadge" class="saved">กำลังบันทึก...</div></div>
+      <div class="result-body" id="resultText"></div>
+    </section>
+  </div>
+</main>
+
+<form id="sheetForm" method="post" target="sheetFrame" hidden>
+  <input id="payloadField" name="payload">
+</form>
+<iframe name="sheetFrame" id="sheetFrame" hidden></iframe>
+
+<script type="module">
+import { QUESTIONS, gradeAnswers } from './src/quiz.js';
+
+// ใส่ URL ที่ได้จาก Google Apps Script: Deploy > Web app
+const APP_SCRIPT_URL = 'PASTE_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+const CONFIGURED = APP_SCRIPT_URL.startsWith('https://script.google.com/macros/s/');
+
+const qs = (id) => document.getElementById(id);
+const questionsEl=qs('questions'), studentClass=qs('studentClass'), studentSelect=qs('studentSelect'), studentNo=qs('studentNo'), studentId=qs('studentId');
+const submitBtn=qs('submitBtn'), result=qs('result'), progressFill=qs('progressFill'), progressText=qs('progressText');
+
+qs('configStatus').textContent = CONFIGURED ? 'เชื่อม Google Sheet แล้ว' : 'ยังไม่ได้ตั้งค่า APP_SCRIPT_URL ใน index.html';
+qs('configStatus').className = CONFIGURED ? 'status' : 'status warn';
+submitBtn.disabled = !CONFIGURED;
+
+questionsEl.innerHTML = QUESTIONS.map(q=>`<article class="card" id="qcard-${q.id}"><div class="qhead"><div class="num">${q.id}</div><h3>${q.text}</h3></div><div class="choices"><label class="choice"><input type="radio" name="q${q.id}" value="trade"> เป็นรายการค้า</label><label class="choice"><input type="radio" name="q${q.id}" value="nontrade"> ไม่เป็นรายการค้า</label></div><div class="feedback" id="fb-${q.id}" hidden></div></article>`).join('');
+
+function updateProgress(){let count=0;QUESTIONS.forEach(q=>{if(document.querySelector(`input[name="q${q.id}"]:checked`))count++});progressText.textContent=`ตอบแล้ว ${count}/${QUESTIONS.length}`;progressFill.style.width=`${count/QUESTIONS.length*100}%`;}
+document.addEventListener('change',e=>{if(e.target.matches('input[type="radio"]'))updateProgress();});
+
+function resetRoster(message){studentSelect.innerHTML=`<option value="">${message}</option>`;studentSelect.disabled=true;studentNo.value='';studentId.value='';}
+
+function loadRoster(studentClassValue){
+  if(!CONFIGURED)return;
+  resetRoster('กำลังโหลด...');qs('rosterStatus').textContent='กำลังโหลดรายชื่อจาก Google Sheet...';
+  const callback='studentRosterCallback_'+Date.now();
+  window[callback]=(data)=>{delete window[callback];document.getElementById(callback)?.remove();if(!data?.ok){qs('rosterStatus').textContent=data?.error||'โหลดรายชื่อไม่สำเร็จ';return}studentSelect.innerHTML='<option value="">เลือกนักเรียน</option>';(data.students||[]).forEach(s=>{const o=document.createElement('option');o.value=String(s.studentNo);o.textContent=`${s.studentNo}. ${s.name}`;o.dataset.name=s.name;o.dataset.studentId=s.studentId||'';studentSelect.appendChild(o)});studentSelect.disabled=false;qs('rosterStatus').textContent=`พบรายชื่อ ${(data.students||[]).length} คน`;};
+  const script=document.createElement('script');script.id=callback;script.src=`${APP_SCRIPT_URL}?action=students&class=${encodeURIComponent(studentClassValue)}&callback=${encodeURIComponent(callback)}&_=${Date.now()}`;script.onerror=()=>{qs('rosterStatus').textContent='โหลดรายชื่อไม่สำเร็จ';delete window[callback];script.remove()};document.body.appendChild(script);
+}
+
+studentClass.addEventListener('change',()=>{const cls=studentClass.value;if(!cls){resetRoster('เลือกห้องก่อน');return}loadRoster(cls)});
+studentSelect.addEventListener('change',()=>{const o=studentSelect.options[studentSelect.selectedIndex];studentNo.value=studentSelect.value||'';studentId.value=o?.dataset?.studentId||'';});
+
+function answersObject(){const answers={};for(const q of QUESTIONS){const r=document.querySelector(`input[name="q${q.id}"]:checked`);if(r)answers[String(q.id)]=r.value;}return answers;}
+
+submitBtn.addEventListener('click',()=>{
+  const cls=studentClass.value, option=studentSelect.options[studentSelect.selectedIndex], name=option?.dataset?.name||'', no=studentNo.value;
+  if(!cls||!name||!no){alert('กรุณาเลือกชั้นและรายชื่อนักเรียน');return}
+  const answers=answersObject();if(Object.keys(answers).length!==QUESTIONS.length){alert('กรุณาตอบให้ครบทั้ง 20 ข้อ');return}
+  const grading=gradeAnswers(answers);
+  grading.details.forEach(d=>{const fb=qs(`fb-${d.id}`);fb.hidden=false;fb.textContent=(d.correct?'✓ ถูกต้อง':'✕ คำตอบที่ถูก: '+(d.correctAnswer==='trade'?'เป็นรายการค้า':'ไม่เป็นรายการค้า'))+' — '+d.explanation;});
+  qs('score').textContent=`${grading.score}/${grading.total}`;qs('resultText').textContent=`${name} · ${cls} เลขที่ ${no} · ${grading.percentage}% · ${grading.passed?'ผ่าน':'ควรทบทวน'}`;qs('savedBadge').textContent='กำลังบันทึกลง Google Sheet...';result.hidden=false;result.scrollIntoView({behavior:'smooth'});
+  const payload={name,studentClass:cls,studentNo:no,studentId:studentId.value,answers};
+  qs('payloadField').value=JSON.stringify(payload);const form=qs('sheetForm');form.action=APP_SCRIPT_URL;form.submit();
+});
+
+window.addEventListener('message',(event)=>{const data=event.data;if(!data||data.source!=='tests-acc-m4')return;if(data.ok){qs('savedBadge').textContent='บันทึกลง Google Sheet แล้ว';if(Number.isFinite(data.score))qs('score').textContent=`${data.score}/${data.total}`;}else{qs('savedBadge').textContent='บันทึกไม่สำเร็จ: '+(data.error||'เกิดข้อผิดพลาด');}});
+qs('resetBtn').addEventListener('click',()=>location.reload());
+updateProgress();
+</script>
+</body>
+</html>
